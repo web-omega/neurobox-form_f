@@ -1,0 +1,9 @@
+{
+  "rate_of_change": 30,
+  "event_generation_rate": 30,
+  "event_generation_rate2": 30,
+  "lines_and_areas": [],
+  "areas_with_directions": [],
+  "event_type": {"name": "Все", "value": null},
+  "vector_border": {"min": 1, "max": 10}
+}

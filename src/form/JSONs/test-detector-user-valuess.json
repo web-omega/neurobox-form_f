@@ -1,0 +1,33 @@
+{
+  "rate_of_change": 70,
+  "event_generation_rate": 30,
+  "event_generation_rate2": 20,
+  "lines_and_areas": [
+    {
+      "color": "FF0000",
+      "type": "line",
+      "dots": [1,1,12,146]
+    },
+    {
+      "color": "FF0000",
+      "type": "area",
+      "dots": [1,1, 16, 241,12,146]
+    }
+  ],
+  "areas_with_directions": [
+    {
+      "color": "00ff00",
+      "type":"arrow_area",
+      "dots": [5,5,7,7,9,9],
+      "arrow": [5,6, 9,2]
+    },
+    {
+      "color": "00ff00",
+      "type":"speed_arrow_area",
+      "dots": [5,5,7,7,9,9],
+      "arrow": [5,6, 9,2]
+    }
+  ],
+  "event_type": {"name": "Активные", "value": "active"},
+  "vector_border": {"min": 2, "max": 4}
+}

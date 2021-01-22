@@ -1,0 +1,32 @@
+:root {
+    --light-text-color: #6b8691;
+    --dark-shadow-color: rgba(0, 0, 0, 0.3);
+    --modal-background-color: #2d4b56;
+}
+
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    text-decoration: none;
+}
+
+.react-responsive-modal-modal.modal-window {
+    background: var(--modal-background-color);
+    color: var(--light-text-color);
+    padding: 65px 50px 80px 50px;
+    box-shadow: 2px 2px 2px var(--dark-shadow-color);
+}
+
+.react-responsive-modal-closeButton.modal-close-button:focus {
+    outline: none;
+}
+
+.react-responsive-modal-closeButton.modal-close-button .modal-close-icon {
+    fill: var(--light-text-color);
+}

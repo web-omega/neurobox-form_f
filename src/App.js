@@ -1,24 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import Modal from "react-responsive-modal";
+import 'react-responsive-modal/styles.css';
+import "./modal.css";
+import Form from "./form";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Modal open={true}
+             onClose={() => {}}
+             classNames={{
+                 modal: "modal-window",
+                 closeButton: "modal-close-button",
+                 closeIcon: "modal-close-icon"
+             }}
+             center>
+
+          <Form/>
+
+      </Modal>
   );
 }
 
