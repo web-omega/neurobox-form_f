@@ -1,10 +1,10 @@
 import React from "react";
-import NumberField from "./form/fields/NumberField";
-import SliderField from "./form/fields/SliderField";
-import LinesAreasCanvasField from "./form/fields/LinesAreasCanvasField";
-import ArrowAreasCanvasField from "./form/fields/ArrowAreasCanvasField";
-import SelectField from "./form/fields/SelectField";
-import RangeField from "./form/fields/RangeField";
+import NumberField from "../../neuro_cloud/src/components/configuration/common/settingsForm/fields/NumberField";
+import SliderField from "../../neuro_cloud/src/components/configuration/common/settingsForm/fields/SliderField";
+import LinesAreasCanvasField from "../../neuro_cloud/src/components/configuration/common/settingsForm/fields/LinesAreasCanvasField";
+import ArrowAreasCanvasField from "../../neuro_cloud/src/components/configuration/common/settingsForm/fields/ArrowAreasCanvasField";
+import SelectField from "../../neuro_cloud/src/components/configuration/common/settingsForm/fields/SelectField";
+import RangeField from "../../neuro_cloud/src/components/configuration/common/settingsForm/fields/RangeField";
 
 export function renderFormField(field) {
     switch (field.type) {
