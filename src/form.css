@@ -1,0 +1,300 @@
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+.inputGroup * {
+    box-sizing: border-box;
+}
+.inputGroup input {
+    background: #577f8e;
+    padding: 5px 10px;
+    color: #fff;
+    border: none;
+}
+.inputGroup ::-webkit-outer-spin-button, .inputGroup ::-webkit-inner-spin-button  {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.inputGroup input[type=number] {
+    -moz-appearance:textfield;
+}
+.inputGroup label,.canvasGroup {
+    font-weight: 700;
+    padding: 10px 0
+}
+datalist {
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
+    /*z-index: 100;*/
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+    padding: 0 12px;
+}
+.inputGroup .inputRange {
+    height: 25px;
+    -webkit-appearance: none;
+    margin: 10px 0;
+    width: 100%;
+    background-color: #1d3340;
+    border-radius: 15px;
+}
+input[type=range]:focus {
+    outline: none;
+}
+.inputRange::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000;
+    background: #A1D0FF;
+    border-radius: 1px;
+}
+.inputRange::-webkit-slider-thumb {
+    border: 4px solid #fff;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #A1D0FF;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7px;
+}
+/*.inputRange:focus::-webkit-slider-runnable-track {*/
+/*    background: #2497E3;*/
+/*}*/
+.inputRange::-moz-range-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000;
+    background: #2497E3;
+    border-radius: 1px;
+    border: 0px solid #000000;
+}
+.inputRange::-moz-range-thumb {
+    box-shadow: 0px 0px 0px #000000;
+    border: 1px solid #2497E3;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #A1D0FF;
+    cursor: pointer;
+}
+.inputRange::-ms-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+.inputRange::-ms-fill-lower {
+    background: #2497E3;
+    border: 0px solid #000000;
+    border-radius: 2px;
+    box-shadow: 0px 0px 0px #000000;
+}
+.inputRange::-ms-fill-upper {
+    background: #2497E3;
+    border: 0px solid #000000;
+    border-radius: 2px;
+    box-shadow: 0px 0px 0px #000000;
+}
+.inputRange::-ms-thumb {
+    margin-top: 1px;
+    box-shadow: 0px 0px 0px #000000;
+    border: 1px solid #2497E3;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #A1D0FF;
+    cursor: pointer;
+}
+.inputRange:focus::-ms-fill-lower {
+    background: #2497E3;
+}
+.inputRange:focus::-ms-fill-upper {
+    background: #2497E3;
+}
+
+.labelValue {
+    width: calc(100% - 10px);
+    margin-left: 5px;
+    position: relative;
+}
+.labelValue .min {
+    position: absolute;
+    left: 0px;
+    top: 0;
+}
+.labelValue .max {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.value {
+    position: absolute;
+    top: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2497E3;
+    z-index: 5;
+    /*transform: translateX(-50%);*/
+}
+.inputGroup select {
+    background: #577f8e;
+    padding: 5px 10px;
+    color: #fff;
+    border: none;
+    outline: none;
+    display: inline-block;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image:
+            linear-gradient(45deg, transparent 50%,  #fafafa 50%),
+            linear-gradient(135deg, #fafafa 50%, transparent 50%),
+            linear-gradient(to right, #577f8e, #577f8e);
+    background-position:
+            calc(100% - 15px) 10px,
+            calc(100% - 10px) 10px,
+            100% 0;
+    background-size:
+            5px 5px,
+            5px 5px,
+            2.5em 2.5em;
+    background-repeat: no-repeat;
+}
+
+.inputRangeMultiply {
+    position: relative;
+}
+
+.inputRangeMultiply .inputRange{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.inputRangeMultiply .inputRange {
+    margin: 0
+}
+.inputRangeMultiply .test {
+    top: 10px;
+}
+.inputRangeMultiply .test {
+    height: 0;
+    padding: 0 5px;
+}
+.test::-moz-range-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0 0 0 #000000;
+    background: #fff;
+    border-radius: 1px;
+    border: 0 solid #000000;
+}
+.test::-webkit-slider-runnable-track {
+    height: 0;
+}
+
+.labelMultiple {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin: 30px 0;
+    position: relative;
+}
+.canvasGroup * {
+    box-sizing: border-box;
+}
+.canvasGroup {
+    width: 800px;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+.canvasGroup label {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.canvasGroup canvas {
+}
+.canvasGroup .canvasMenu {
+    width: 200px;
+}
+.panel {
+    display: flex;
+    justify-content: space-between;
+}
+.panel img {
+    cursor: pointer;
+}
+.imageDefault, .imageActive {
+    display: none;
+}
+.panel .imageDefault {
+    display: block;
+}
+.panel .active .imageActive {
+    display: block;
+}
+.panel .active .imageDefault {
+    display: none;
+}
+
+.items {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.item {
+    width: 100%;
+    padding: 10px;
+    border-bottom: 1px solid #577f8e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+.item .deleteElement {
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    font-size: 18px;
+}
+.item .color {
+    margin-left: 20px;
+    width: 20px;
+    height: 20px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+.item .color input {
+    opacity: 0;
+    border: none;
+    outline: none;
+    padding: 0;
+}
+.items .active {
+    background: #1d3340;
+}
+.items .itemLabel {
+    display: flex;
+    align-items: center;
+}
+.itemLabel img {
+    width: 25px;
+    margin-right: 10px;
+}

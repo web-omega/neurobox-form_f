@@ -7,7 +7,6 @@ import {renderFormField} from "../functions";
 
 class Form extends Component {
     render() {
-        console.log(detectorParameters);
         return (
             <div>
                 <Formik
