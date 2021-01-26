@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from "react-responsive-modal";
 import 'react-responsive-modal/styles.css';
 import "./modal.css";
+import "./form.css";
 import Form from "./form";
 
 function App() {
