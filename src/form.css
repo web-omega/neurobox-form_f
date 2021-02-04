@@ -1,4 +1,18 @@
+:root {
+    --light-text-color: #6b8691;
+    --dark-shadow-color: rgba(0, 0, 0, 0.3);
+    --modal-background-color: #2d4b56;
+    --error-color: rgb(121 114 96);
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .inputGroup {
+    width: 50%;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     margin-bottom: 10px;
@@ -22,133 +36,10 @@
 }
 .inputGroup label,.canvasGroup {
     font-weight: 700;
+
     padding: 10px 0
 }
-datalist {
-    /*position: absolute;*/
-    /*left: 0;*/
-    /*top: 0;*/
-    /*z-index: 100;*/
-    display: flex;
-    width: 100%;
-    box-sizing: border-box;
-    justify-content: space-between;
-    padding: 0 12px;
-}
-.inputGroup .inputRange {
-    height: 25px;
-    -webkit-appearance: none;
-    margin: 10px 0;
-    width: 100%;
-    background-color: #1d3340;
-    border-radius: 15px;
-}
-input[type=range]:focus {
-    outline: none;
-}
-.inputRange::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0px 0px 0px #000000;
-    background: #A1D0FF;
-    border-radius: 1px;
-}
-.inputRange::-webkit-slider-thumb {
-    border: 4px solid #fff;
-    height: 18px;
-    width: 18px;
-    border-radius: 25px;
-    background: #A1D0FF;
-    cursor: pointer;
-    -webkit-appearance: none;
-    margin-top: -7px;
-}
-/*.inputRange:focus::-webkit-slider-runnable-track {*/
-/*    background: #2497E3;*/
-/*}*/
-.inputRange::-moz-range-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0px 0px 0px #000000;
-    background: #2497E3;
-    border-radius: 1px;
-    border: 0px solid #000000;
-}
-.inputRange::-moz-range-thumb {
-    box-shadow: 0px 0px 0px #000000;
-    border: 1px solid #2497E3;
-    height: 18px;
-    width: 18px;
-    border-radius: 25px;
-    background: #A1D0FF;
-    cursor: pointer;
-}
-.inputRange::-ms-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    background: transparent;
-    border-color: transparent;
-    color: transparent;
-}
-.inputRange::-ms-fill-lower {
-    background: #2497E3;
-    border: 0px solid #000000;
-    border-radius: 2px;
-    box-shadow: 0px 0px 0px #000000;
-}
-.inputRange::-ms-fill-upper {
-    background: #2497E3;
-    border: 0px solid #000000;
-    border-radius: 2px;
-    box-shadow: 0px 0px 0px #000000;
-}
-.inputRange::-ms-thumb {
-    margin-top: 1px;
-    box-shadow: 0px 0px 0px #000000;
-    border: 1px solid #2497E3;
-    height: 18px;
-    width: 18px;
-    border-radius: 25px;
-    background: #A1D0FF;
-    cursor: pointer;
-}
-.inputRange:focus::-ms-fill-lower {
-    background: #2497E3;
-}
-.inputRange:focus::-ms-fill-upper {
-    background: #2497E3;
-}
 
-.labelValue {
-    width: calc(100% - 10px);
-    margin-left: 5px;
-    position: relative;
-}
-.labelValue .min {
-    position: absolute;
-    left: 0px;
-    top: 0;
-}
-.labelValue .max {
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-.value {
-    position: absolute;
-    top: 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: #2497E3;
-    z-index: 5;
-    /*transform: translateX(-50%);*/
-}
 .inputGroup select {
     background: #577f8e;
     padding: 5px 10px;
@@ -174,65 +65,25 @@ input[type=range]:focus {
             2.5em 2.5em;
     background-repeat: no-repeat;
 }
-
-.inputRangeMultiply {
-    position: relative;
-}
-
-.inputRangeMultiply .inputRange{
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-.inputRangeMultiply .inputRange {
-    margin: 0
-}
-.inputRangeMultiply .test {
-    top: 10px;
-}
-.inputRangeMultiply .test {
-    height: 0;
-    padding: 0 5px;
-}
-.test::-moz-range-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0 0 0 #000000;
-    background: #fff;
-    border-radius: 1px;
-    border: 0 solid #000000;
-}
-.test::-webkit-slider-runnable-track {
-    height: 0;
-}
-
-.labelMultiple {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    margin: 30px 0;
-    position: relative;
-}
 .canvasGroup * {
     box-sizing: border-box;
 }
 .canvasGroup {
-    width: 800px;
+    width: 850px;
     display: flex;
     flex-wrap: wrap;
     margin: 10px 0;
 }
 .canvasGroup label {
     width: 100%;
-    text-align: center;
+    font-size: 16px;
     margin-bottom: 10px;
 }
-.canvasGroup canvas {
-}
+
 .canvasGroup .canvasMenu {
-    width: 200px;
+    width: 250px;
+    background: rgb(28, 51, 63);
+    overflow-y: auto;
 }
 .panel {
     display: flex;
@@ -288,7 +139,8 @@ input[type=range]:focus {
     padding: 0;
 }
 .items .active {
-    background: #1d3340;
+    background: #577f8e;
+    color: #1d3340;
 }
 .items .itemLabel {
     display: flex;
@@ -297,4 +149,136 @@ input[type=range]:focus {
 .itemLabel img {
     width: 25px;
     margin-right: 10px;
+}
+.labelForm {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    font-weight: 700;
+    font-size: 20px;
+}
+.nameDetector {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    justify-content: center;
+}
+.nameDetector img {
+    padding: 3px;
+    width: 20px;
+    margin-right: 10px;
+    background-color: var(--light-text-color);
+}
+.errorWrap {
+    height: 30px;
+}
+.error {
+    color: var(--error-color);
+}
+.fakeSliderWrap {
+    width: 100%;
+    padding: 0 10px;
+    background-color: #1d3340;
+    border-radius: 15px;
+}
+.fakeSlider {
+    display: flex;
+    width: 100%;
+    position: relative;
+    user-select: none;
+    height: 26px;
+    cursor: pointer;
+    align-items: center;
+}
+.selectActive {
+    height: 10px;
+    background-image: url("svg/circleDefault.svg");
+    background-color: transparent;
+    background-size: 10px;
+    background-repeat: repeat-x;
+    background-position: 0 0;
+}
+.selectNew {
+    height: 10px;
+    background-image: url("svg/circleActive.svg");
+    background-color: transparent;
+    background-size: 10px;
+    background-repeat: repeat-x;
+    background-position: 100% 100%;
+}
+.thumb {
+    border: 5px solid #fff;
+    border-radius: 25px;
+    background: #2497E3;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%,-50%);
+    position: absolute;
+    top: 12px;
+    cursor: pointer;
+    left: 0;
+}
+.fakeSliderMultiple .selectNewMin {
+    background-position: 0 0;
+}
+.fakeSliderMultiple .selectNewMax {
+    background-position: 100% 100%;
+}
+.selectActiveMin {
+    background-position: 100% 100%;
+}
+.selectActiveMax {
+    background-position: 0 0;
+}
+.labelValueWrap {
+    padding: 0 5px;
+}
+.labelValue {
+    width: 100%;
+    margin: 5px 2px;
+    position: relative;
+}
+.labelValue .min {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateX(-50%);
+}
+.labelValue .max {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateX(50%);
+}
+.value {
+    position: absolute;
+    top: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2497E3;
+    z-index: 5;
+    transform: translateX(-50%);
+}
+.labelMultiple {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin: 5px 0 0;
+    position: relative;
+}
+.wrapButton {
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    width: 100%;
+}
+.wrapButton button{
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    text-transform: uppercase;
+    background-color: #2497E3;
+    padding: 10px 20px;
 }

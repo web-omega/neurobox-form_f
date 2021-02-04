@@ -9,6 +9,9 @@ class Form extends Component {
     render() {
         return (
             <div>
+                <div className={'labelForm'}> Настройка детектора</div>
+                <div className={'nameDetector'}><img src="svg/user.svg" alt=""/> Detector_face_verification</div>
+                {/*изменить на актуальное название */}
                 <Formik
                     initialValues={Object.assign({}, detectorDefaultValues, detectorUserValues)}
                     onSubmit={(values, { setSubmitting }) => {
@@ -33,9 +36,11 @@ class Form extends Component {
                                 detectorParameters.map(param => renderFormField(param))
                             }
 
-                            <button type="submit" disabled={isSubmitting}>
-                                Submit
-                            </button>
+                            <div className="wrapButton">
+                                <button type="submit" disabled={isSubmitting}>
+                                    Submit
+                                </button>
+                            </div>
                         </form>
                     )}
                 </Formik>

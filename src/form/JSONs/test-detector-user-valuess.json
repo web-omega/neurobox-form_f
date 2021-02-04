@@ -1,7 +1,4 @@
 {
-  "rate_of_change": 70,
-  "event_generation_rate": 30,
-  "event_generation_rate2": 20,
   "lines_and_areas": [
     {
       "color": "FF0000",
@@ -28,6 +25,9 @@
       "arrow": [324.5, 275.8125, 191.5, 270.8125]
     }
   ],
+  "rate_of_change": 20,
+  "event_generation_rate": 30,
+  "event_generation_rate2": 20,
   "event_type": {"name": "Активные", "value": "active"},
   "vector_border": {"min": 2, "max": 4}
 }

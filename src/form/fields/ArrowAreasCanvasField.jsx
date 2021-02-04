@@ -1,17 +1,22 @@
 import React, {Component, useEffect, useState,useRef} from 'react';
 import {Field, useFormikContext} from "formik";
-//import imgReq from './canvas/testImage.jpg'
+import {convexShape,hexToRgb,inPoly} from './utils'
 
 function ArrowAreasCanvasField(props) {
+
+    const form = useFormikContext();
 
     let imgReq = 'https://mtdi.mosreg.ru/upload/files/g/i/gio9SFV0y7O9ZsNltS5E62m8vYlN7Y2OBMUSoP6F7lej2dgikbj1X14lv0yV8ymCPdCV6egCP1UzkAjCtWHkzrZQyrDybUU6.jpg'
     const { values, submitForm } = useFormikContext();
 
 
-    let ctxCanvas = null;
-    let imageTest = new Image();
-    let canvasWidth = 0;
-    let canvasHeight = 0;
+
+    let ctxCanvas = useRef(null);
+    let errorMessage = useRef([]);
+    let imageTest = useRef(new Image());
+    const canvasWidth = useRef(600);
+    const canvasHeight = useRef(0);
+    let loadImage = useRef(false);
     let originWidth = 0;
     let originHeight = 0;
     let mouse = [];
@@ -41,25 +46,21 @@ function ArrowAreasCanvasField(props) {
     });
 
     useEffect(()=>{
+        if(!loadImage.current){
+            ctxCanvas.current = canvas.current.getContext('2d');
+            imageTest.current.src = imgReq;
+            imageTest.current.onload = () => {
+                originWidth = imageTest.current.width;
+                originHeight = imageTest.current.height;
+                canvasHeight.current = originHeight * ( canvasWidth.current/originWidth );
 
-
-        ctxCanvas  = canvas.current.getContext('2d');
-
-        canvasWidth = 600;
-
-        imageTest.src = imgReq;
-        imageTest.onload = () => {
-            originWidth = imageTest.width;
-            originHeight = imageTest.height;
-            canvasHeight = originHeight * ( canvasWidth/originWidth );
-
-            canvas.current.height = canvasHeight;
-            canvas.current.width = canvasWidth;
-            scaleImage =  canvasWidth/originWidth;
-
-
-            canvasRender();
-        }
+                canvas.current.height = canvasHeight.current;
+                canvas.current.width = canvasWidth.current;
+                scaleImage =  canvasWidth.current/originWidth;
+                canvasRender(data);
+                loadImage.current = true
+            }
+        } else canvasRender(data);
 
     },[data]);
 
@@ -68,89 +69,123 @@ function ArrowAreasCanvasField(props) {
         if(colorCanvas.indexOf(color) <= 0) colorCanvas.push(("000000" + color.toString(16)).slice(-6));
     }
 
-    const canvasRender = () => {
+    const canvasRender = (data) => {
 
-
-        window.requestAnimationFrame(canvasRender);
-        ctxCanvas.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctxCanvas.drawImage(imageTest, 0, 0, canvasWidth, canvasHeight);
+        ctxCanvas.current.clearRect(0, 0, canvasWidth.current, canvasHeight.current);
+        ctxCanvas.current.drawImage(imageTest.current, 0, 0, canvasWidth.current, canvasHeight.current);
 
         data.arr.forEach(el=>{
-            ctxCanvas.beginPath();
+            ctxCanvas.current.beginPath();
             for(let i = 0; i< el.dots.length; i = i + 2){
-                ctxCanvas.beginPath();
-                ctxCanvas.fillStyle = "#" + el.color;
-                ctxCanvas.arc(el.dots[i], el.dots[i+1], 5, 0, 2*Math.PI);
-                ctxCanvas.fill();
+                ctxCanvas.current.beginPath();
+                ctxCanvas.current.fillStyle = "#" + el.color;
+                ctxCanvas.current.arc(el.dots[i], el.dots[i+1], 5, 0, 2*Math.PI);
+                ctxCanvas.current.fill();
             }
-            ctxCanvas.closePath();
+            ctxCanvas.current.closePath();
 
             if(el.type === 'speed_arrow_area' || el.type ===  'arrow_area' ) {
 
-                ctxCanvas.beginPath();
-                ctxCanvas.moveTo(el.dots[0],el.dots[1]);
+                ctxCanvas.current.beginPath();
+                ctxCanvas.current.moveTo(el.dots[0],el.dots[1]);
                 for(let i = 0; i< el.dots.length; i = i + 2){
-                    ctxCanvas.lineTo(el.dots[i],el.dots[i+1])
+                    ctxCanvas.current.lineTo(el.dots[i],el.dots[i+1])
                 }
-                ctxCanvas.lineTo(el.dots[0],el.dots[1]);
+                ctxCanvas.current.lineTo(el.dots[0],el.dots[1]);
                 let rgb = hexToRgb( "#" + el.color);
                 let color = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', .5)';
-                ctxCanvas.fillStyle = color ;
-                ctxCanvas.strokeStyle = "#" + el.color ;
-                ctxCanvas.lineWidth =  3;
-                ctxCanvas.fill();
-                ctxCanvas.stroke();
-                ctxCanvas.closePath();
+                ctxCanvas.current.fillStyle = color ;
+                ctxCanvas.current.strokeStyle = "#" + el.color ;
+                ctxCanvas.current.lineWidth =  3;
+                ctxCanvas.current.fill();
+                ctxCanvas.current.stroke();
+                ctxCanvas.current.closePath();
 
-                ctxCanvas.beginPath();
-                ctxCanvas.fillStyle = el.color ;
+                ctxCanvas.current.beginPath();
+                ctxCanvas.current.fillStyle = el.color ;
                 for(let i = 0; i< el.arrow.length; i = i + 2){
-                    ctxCanvas.arc(el.arrow[i], el.arrow[i+1], 4, 0, 2*Math.PI);
+                    ctxCanvas.current.arc(el.arrow[i], el.arrow[i+1], 4, 0, 2*Math.PI);
                 }
-                ctxCanvas.fill();
-                ctxCanvas.closePath();
+                ctxCanvas.current.fill();
+                ctxCanvas.current.closePath();
                 if(el.arrow.length === 4) canvasArrow(el.arrow[0],el.arrow[1],el.arrow[2],el.arrow[3])
-
             }
 
         });
     };
     const canvasArrow = (fromx, fromy, tox, toy) =>{
-        let arrowLen = 25;	// length of head in pixels
+        let arrowLen = 25;
         let dx = tox-fromx;
         let dy = toy-fromy;
         let angle = Math.atan2(dy,dx);
-        ctxCanvas.beginPath();
-        ctxCanvas.lineWidth =  5;
-        ctxCanvas.moveTo(fromx, fromy);
-        ctxCanvas.lineTo(tox, toy);
-        ctxCanvas.stroke();
-        ctxCanvas.moveTo(tox, toy);
-        ctxCanvas.lineTo(tox-arrowLen*Math.cos(angle-Math.PI/6),toy-arrowLen*Math.sin(angle-Math.PI/6));
-        ctxCanvas.stroke();
-        ctxCanvas.moveTo(tox, toy);
-        ctxCanvas.lineTo(tox-arrowLen*Math.cos(angle+Math.PI/6),toy-arrowLen*Math.sin(angle+Math.PI/6));
-        ctxCanvas.stroke();
-        ctxCanvas.closePath();
-    }
+        ctxCanvas.current.beginPath();
+        ctxCanvas.current.lineWidth =  5;
+        ctxCanvas.current.moveTo(fromx, fromy);
+        ctxCanvas.current.lineTo(tox, toy);
+        ctxCanvas.current.stroke();
+        ctxCanvas.current.moveTo(tox, toy);
+        ctxCanvas.current.lineTo(tox-arrowLen*Math.cos(angle-Math.PI/6),toy-arrowLen*Math.sin(angle-Math.PI/6));
+        ctxCanvas.current.stroke();
+        ctxCanvas.current.moveTo(tox, toy);
+        ctxCanvas.current.lineTo(tox-arrowLen*Math.cos(angle+Math.PI/6),toy-arrowLen*Math.sin(angle+Math.PI/6));
+        ctxCanvas.current.stroke();
+        ctxCanvas.current.closePath();
+    };
 
-    const hexToRgb = (c) => {
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(c);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
-    }
+    const checkArea = (arrTest) => {
+        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'area');
+        let checkConvex = convexShape(arrTest[activeIndex].dots)
+        if (!checkConvex && errorElem == '-1') {
+            errorMessage.current.push({
+                type: 'area',
+                index: activeIndex,
+                message: 'Фигура ' + (activeIndex + 1) + ' не выпуклая.'
+            });
+        } else if(checkConvex && errorElem != '-1') errorMessage.current.splice(errorElem,1)
+    };
+    const arrowInPoly = (arrTest)=>{
+
+        let testInPoly = true;
+        if(arrTest[activeIndex].arrow.length === 4) {
+            testInPoly = inPoly(arrTest[activeIndex].arrow[0],arrTest[activeIndex].arrow[1], arrTest[activeIndex].dots) && inPoly(arrTest[activeIndex].arrow[2],arrTest[activeIndex].arrow[3], arrTest[activeIndex].dots);
+            let errorCount = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'arrow' && el.arrowCount);
+            errorMessage.current.splice(errorCount,1)
+        }
+
+        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'arrow');
+        if(arrTest[activeIndex].arrow.length === 2){
+            errorMessage.current.push({
+                type: 'arrow',
+                index: activeIndex,
+                arrowCount: true,
+                message: 'Направление не может содержать только одну точку (область ' + (activeIndex + 1) + ')'
+            });
+        }
+        if (!testInPoly && errorElem == '-1') {
+            errorMessage.current.push({
+                type: 'arrow',
+                index: activeIndex,
+                message: 'Направление должно находиться внутри активной области (область ' + (activeIndex + 1) + ')'
+            });
+        } else if(testInPoly && errorElem != '-1') errorMessage.current.splice(errorElem,1)
+
+    };
+    const saveValue = (arrTest)=>{
+        setData({ arr: arrTest});
+        form.setFieldValue(props.code, data.arr);
+    };
 
 
     const paintCanvas = (e,form) => {
+
         if(activeIndex !== ''){
             let arrTest = [...data.arr];
             if(!stateButton.eraser && !stateButton.edit && !stateButton.arrow){
                 arrTest[activeIndex].dots.push(mouse[0],mouse[1]);
-                setData({ arr: arrTest});
-                form.setFieldValue(props.code, data.arr);
+                if(arrTest[activeIndex].dots.length > 5) {
+                    checkArea(arrTest)
+                }
+                saveValue(arrTest)
             }
             if(stateButton.eraser){
                 let updateArray = false;
@@ -160,7 +195,8 @@ function ArrowAreasCanvasField(props) {
                     let distArr = Math.sqrt(dxArr * dxArr + dyArr * dyArr);
                     if(distArr < 10){
                         arrTest[activeIndex].dots.splice(i,2);
-                        updateArray = true
+                        updateArray = true;
+                        checkArea(arrTest);
                     }
                 }
                 for (let i = 0; i<  arrTest[activeIndex].arrow.length; i=i+2){
@@ -169,28 +205,26 @@ function ArrowAreasCanvasField(props) {
                     let distArr = Math.sqrt(dxArr * dxArr + dyArr * dyArr);
                     if(distArr < 10){
                         arrTest[activeIndex].arrow.splice(i,2);
-                        updateArray = true
+                        updateArray = true;
+                        arrowInPoly(arrTest)
                     }
                 }
-                if(updateArray) {
-                    setData({ arr: arrTest});
-                    form.setFieldValue(props.code, data.arr);
-                }
+                if(updateArray) saveValue(arrTest)
             }
-
             if(move) {
                 arrTest[activeIndex].dots[indexMove] = mouse[0];
                 arrTest[activeIndex].dots[indexMove + 1] = mouse[1];
-                setData({ arr: arrTest});
-                form.setFieldValue(props.code, data.arr);
+                checkArea(arrTest);
+                saveValue(arrTest);
                 move = false;
                 indexMove = null;
             }
             if(moveArrow) {
                 arrTest[activeIndex].arrow[indexMoveArrow] = mouse[0];
                 arrTest[activeIndex].arrow[indexMoveArrow + 1] = mouse[1];
-                setData({ arr: arrTest});
-                form.setFieldValue(props.code, data.arr);
+                arrowInPoly(arrTest);
+                saveValue(arrTest);
+
                 moveArrow = false;
                 indexMoveArrow = null;
             }
@@ -199,40 +233,16 @@ function ArrowAreasCanvasField(props) {
                     alert('Область может содержать только одно направление, для изменения перейдите в соответствуюшие пункты');
                     return
                 }
-                let testInPoly = inPoly(mouse[0],mouse[1], arrTest[activeIndex].dots);
-                if(testInPoly) {
-                    arrTest[activeIndex].arrow.push(mouse[0],mouse[1]);
-                    setData({ arr: arrTest});
-                    form.setFieldValue(props.code, data.arr);
-                } else {
-                    alert('Направление должно находиться внутри активной области')
-                }
+                arrTest[activeIndex].arrow.push(mouse[0]);
+                arrTest[activeIndex].arrow.push(mouse[1]);
+                arrowInPoly(arrTest);
+                saveValue(arrTest);
             }
-
         }
+        canvasRender(data);
     };
 
-    const inPoly = (x,y,array)=> {
 
-        let dx = [];
-        let dy = [];
-        for( let i = 0; i<array.length; i= i+2) {
-            dx.push(array[i]);
-            dy.push(array[i + 1]);
-        }
-
-        let npol = dx.length;
-        let j = npol - 1;
-        let c = 0;
-        for (let i = 0; i < npol;i++){
-            if ((((dy[i]<=y) && (y<dy[j])) || ((dy[j]<=y) && (y<dy[i]))) &&
-                (x > (dx[j] - dx[i]) * (y - dy[i]) / (dy[j] - dy[i]) + dx[i])) {
-                c = !c
-            }
-            j = i;
-        }
-        return c;
-    }
 
     const movePoint = (e) => {
         if(stateButton.edit){
@@ -260,14 +270,42 @@ function ArrowAreasCanvasField(props) {
 
     const mousePosition = (e) => {
         let rect = canvas.current.getBoundingClientRect();
-        mouse = [e.clientX - rect.left,e.clientY - rect.top];
+        mouse = [Math.round((e.clientX - rect.left)),Math.round((e.clientY - rect.top))];
+        if(move) {
+            let arrTest = [...data.arr];
+            arrTest[activeIndex].dots[indexMove] = mouse[0];
+            arrTest[activeIndex].dots[indexMove + 1] = mouse[1];
+            canvasRender({arr: arrTest});
+        }
+        if(moveArrow) {
+            let arrTest = [...data.arr];
+            arrTest[activeIndex].arrow[indexMoveArrow] = mouse[0];
+            arrTest[activeIndex].arrow[indexMoveArrow + 1] = mouse[1];
+            canvasRender({arr: arrTest});
+        }
     };
+    const indexOfAll = (arr, val) => arr.reduce((acc, el, i) => (el.index === val ? [...acc, i] : acc), []);
 
-    const deleteElement = (index,form) => {
+    const deleteElement = (index) => {
         let arrTest = [...data.arr];
+        let errorElem = errorMessage.current.findIndex(el => el.index === index);
+        let errorElem2 = indexOfAll(errorMessage.current, index);
+
+        errorMessage.current.forEach(el=>{
+            if(index <  el.index) {
+                let indString = el.message.indexOf(String(el.index + 1));
+                el.message = el.message.substr(0, indString) + ( el.index-- ) + el.message.substr(indString + 1);
+                el.index = el.index--;
+            }
+        });
+        if(errorElem2.length > 0) {
+            errorElem2.reverse().forEach(el=>{
+                errorMessage.current.splice(el,1);
+            });
+
+        }
         arrTest.splice(index,1);
-        setData({ arr: arrTest});
-        form.setFieldValue(props.code, data.arr);
+        saveValue(arrTest)
     };
 
     const panelActive = (type) => {
@@ -310,6 +348,13 @@ function ArrowAreasCanvasField(props) {
         })
     };
     const changeIndex = (ind) => {
+        setValueButton({
+            areaSpeed: false,
+            area: false,
+            edit: false,
+            eraser: false,
+            arrow: false
+        });
         setIndex(() => ind)
     };
     const setNewColor = (e,ind,form) => {
@@ -323,8 +368,9 @@ function ArrowAreasCanvasField(props) {
 
     return (
         <div>
-
-            <Field name={props.code}>
+            <Field name={props.code} validate={(value)=>{
+                return errorMessage.current.length > 0;
+            }}>
                 {({
                       field,
                       form,
@@ -338,7 +384,7 @@ function ArrowAreasCanvasField(props) {
                                 ref={canvas}
                                 id={props.code}>
                         </canvas>
-                        <div className="canvasMenu">
+                        <div className="canvasMenu" style={{maxHeight:  canvasHeight.current + 'px'}}>
                             <div className="panel">
                                 <div className="panelItem" onClick={ () => panelActive('area')}>
                                     <img src="svg/area.svg" alt=""/>
@@ -383,9 +429,13 @@ function ArrowAreasCanvasField(props) {
                                 }
                             </div>
                         </div>
-                        {meta.error && (
-                            <div className="error">{meta.error}</div>
-                        )}
+                        <div className="errorWrap">
+                            {errorMessage.current.length > 0 && (
+                                errorMessage.current.map((item, index) => {
+                                    return <div className="error" key={index}>{item.message}</div>
+                                })
+                            )}
+                        </div>
                     </div>
                 )}
             </Field>

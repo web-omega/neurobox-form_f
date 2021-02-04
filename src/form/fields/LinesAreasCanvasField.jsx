@@ -1,17 +1,21 @@
 
 import React, {Component, useEffect, useState,useRef} from 'react';
 import {Field, useFormikContext} from "formik";
-//import imgReq from './canvas/testImage.jpg'
+import {convexShape,hexToRgb,lineIntersect} from './utils'
 
 function LinesAreasCanvasField(props) {
-
+    const form = useFormikContext();
     const { values, submitForm } = useFormikContext();
 
     let imgReq = 'https://www.newsko.ru/media/6311833/dorogi-perm.jpg';
-    let ctxCanvas = null;
-    let imageTest = new Image();
-    let canvasWidth = 0;
-    let canvasHeight = 0;
+
+    let ctxCanvas = useRef(null);
+    let errorMessage = useRef([]);
+    let imageTest = useRef(new Image());
+    const canvasWidth = useRef(600);
+    const canvasHeight = useRef(0);
+    let loadImage = useRef(false);
+
     let originWidth = 0;
     let originHeight = 0;
     let mouse = [];
@@ -36,32 +40,21 @@ function LinesAreasCanvasField(props) {
     });
 
     useEffect(()=>{
+        if(!loadImage.current){
+            ctxCanvas.current = canvas.current.getContext('2d');
+            imageTest.current.src = imgReq;
+            imageTest.current.onload = () => {
+                originWidth = imageTest.current.width;
+                originHeight = imageTest.current.height;
+                canvasHeight.current = originHeight * ( canvasWidth.current/originWidth );
 
-
-        ctxCanvas  = canvas.current.getContext('2d');
-
-        canvasWidth = 600;
-
-        imageTest.src = imgReq;
-        imageTest.onload = () => {
-            originWidth = imageTest.width;
-            originHeight = imageTest.height;
-            canvasHeight = originHeight * ( canvasWidth/originWidth );
-            canvas.current.height = canvasHeight;
-            canvas.current.width = canvasWidth;
-
-            scaleImage =  canvasWidth/originWidth;
-
-            // let arrState = [...data.arr];
-            // arrState.forEach(el=>{
-            //     el.dots.forEach(coor=>{
-            //         coor = coor*scaleImage;
-            //     });
-            // });
-            // setData({ arr: arrState});
-            canvasRender();
-        }
-
+                canvas.current.height = canvasHeight.current;
+                canvas.current.width = canvasWidth.current;
+                scaleImage =  canvasWidth.current/originWidth;
+                canvasRender(data);
+                loadImage.current = true
+            }
+        } else canvasRender(data);
     },[data]);
 
     for (let i = 0; i < 30; i++){
@@ -69,70 +62,109 @@ function LinesAreasCanvasField(props) {
         if(colorCanvas.indexOf(color) <= 0) colorCanvas.push(("000000" + color.toString(16)).slice(-6));
     }
 
-    const canvasRender = () => {
+    const canvasRender = (data) => {
 
 
-        window.requestAnimationFrame(canvasRender);
-        ctxCanvas.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctxCanvas.drawImage(imageTest, 0, 0, canvasWidth, canvasHeight);
+        ctxCanvas.current.clearRect(0, 0, canvasWidth.current, canvasHeight.current);
+        ctxCanvas.current.drawImage(imageTest.current, 0, 0, canvasWidth.current, canvasHeight.current);
 
         data.arr.forEach(el=>{
-            ctxCanvas.beginPath();
+            ctxCanvas.current.beginPath();
             for(let i = 0; i< el.dots.length; i = i + 2){
-                ctxCanvas.beginPath();
-                ctxCanvas.fillStyle = "#" + el.color;
-                ctxCanvas.arc(el.dots[i], el.dots[i+1], 5, 0, 2*Math.PI);
-                ctxCanvas.fill();
+                ctxCanvas.current.beginPath();
+                ctxCanvas.current.fillStyle = "#" + el.color;
+                ctxCanvas.current.arc(el.dots[i], el.dots[i+1], 5, 0, 2*Math.PI);
+                ctxCanvas.current.fill();
             }
-            ctxCanvas.closePath();
+            ctxCanvas.current.closePath();
             if(el.type === 'line') {
-                ctxCanvas.beginPath();
-                ctxCanvas.moveTo(el.dots[0],el.dots[1]);
+                ctxCanvas.current.beginPath();
+                ctxCanvas.current.moveTo(el.dots[0],el.dots[1]);
                 for(let i = 0; i< el.dots.length; i = i + 2){
-                    ctxCanvas.lineTo(el.dots[i],el.dots[i+1])
+                    ctxCanvas.current.lineTo(el.dots[i],el.dots[i+1])
                 }
-                ctxCanvas.strokeStyle =  "#" + el.color;
-                ctxCanvas.lineWidth =  3;
-                ctxCanvas.stroke();
-                ctxCanvas.closePath();
+                ctxCanvas.current.strokeStyle =  "#" + el.color;
+                ctxCanvas.current.lineWidth =  3;
+                ctxCanvas.current.stroke();
+                ctxCanvas.current.closePath();
             }
             if(el.type === 'area') {
 
-                ctxCanvas.beginPath();
-                ctxCanvas.moveTo(el.dots[0],el.dots[1]);
+                ctxCanvas.current.beginPath();
+                ctxCanvas.current.moveTo(el.dots[0],el.dots[1]);
                 for(let i = 0; i< el.dots.length; i = i + 2){
-                    ctxCanvas.lineTo(el.dots[i],el.dots[i+1])
+                    ctxCanvas.current.lineTo(el.dots[i],el.dots[i+1])
                 }
-                ctxCanvas.lineTo(el.dots[0],el.dots[1]);
+                ctxCanvas.current.lineTo(el.dots[0],el.dots[1]);
                 let rgb = hexToRgb( "#" + el.color);
                 let color = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', .5)';
-                ctxCanvas.strokeStyle = "#" + el.color;
-                ctxCanvas.fillStyle = color;
-                ctxCanvas.lineWidth =  3;
-                ctxCanvas.fill();
-                ctxCanvas.stroke();
-                ctxCanvas.closePath();
+                ctxCanvas.current.strokeStyle = "#" + el.color;
+                ctxCanvas.current.fillStyle = color;
+                ctxCanvas.current.lineWidth =  3;
+                ctxCanvas.current.fill();
+                ctxCanvas.current.stroke();
+                ctxCanvas.current.closePath();
             }
 
         });
     };
-    const hexToRgb = (c) => {
-        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(c);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
-    }
 
+    const checkLine = (arrTest)=> {
+        let n = (arrTest[activeIndex].dots.length + 1);
+        let intersect = false;
+        for (let i = 0; i < n - 1; i=i+2) {
+            for (let j = 0; j < n - 1; j=j+2) {
+                let test =  lineIntersect(
+                    arrTest[activeIndex].dots[i],
+                    arrTest[activeIndex].dots[i+1],
+                    arrTest[activeIndex].dots[i+2],
+                    arrTest[activeIndex].dots[i+3],
+                    arrTest[activeIndex].dots[j],
+                    arrTest[activeIndex].dots[j+1],
+                    arrTest[activeIndex].dots[j+2],
+                    arrTest[activeIndex].dots[j+3]);
+                if(test.result) intersect = true
+            }
+        }
+        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex);
+        if(intersect && errorElem == '-1') {
+            errorMessage.current.push({
+                type: 'line',
+                index: activeIndex,
+                message: 'Линия ' + (activeIndex + 1) + ' пересекает саму себя.'
+            })
+        } else if(!intersect && errorElem != '-1') errorMessage.current.splice(errorElem,1)
+    };
+
+    const checkArea = (arrTest) => {
+        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex);
+        let checkConvex = convexShape(arrTest[activeIndex].dots)
+        if (!checkConvex && errorElem == '-1') {
+            errorMessage.current.push({
+                type: 'area',
+                index: activeIndex,
+                message: 'Фигура ' + (activeIndex + 1) + ' не выпуклая.'
+            });
+        } else if(checkConvex && errorElem != '-1') errorMessage.current.splice(errorElem,1)
+    };
+
+    const saveValue = (arrTest)=>{
+        setData({ arr: arrTest});
+        form.setFieldValue(props.code, data.arr);
+    };
 
     const paintCanvas = (e,form) => {
         if(activeIndex !== ''){
             let arrTest = [...data.arr];
             if(!stateButton.eraser && !stateButton.edit){
                 arrTest[activeIndex].dots.push(mouse[0],mouse[1]);
-                setData({ arr: arrTest});
-                form.setFieldValue(props.code, data.arr);
+                if(arrTest[activeIndex].type === 'line' && arrTest[activeIndex].dots.length > 7) {
+                    checkLine(arrTest)
+                }
+                if(arrTest[activeIndex].dots.length > 5 && arrTest[activeIndex].type === 'area') {
+                    checkArea(arrTest);
+                }
+                saveValue(arrTest);
             }
             if(stateButton.eraser){
                 let updateArray = false;
@@ -142,24 +174,23 @@ function LinesAreasCanvasField(props) {
                     let distArr = Math.sqrt(dxArr * dxArr + dyArr * dyArr);
                     if(distArr < 10){
                         arrTest[activeIndex].dots.splice(i,2);
-                        updateArray = true
+                        updateArray = true;
+                        if( arrTest[activeIndex].type === 'line') checkLine(arrTest);
+                        if( arrTest[activeIndex].type === 'area') checkArea(arrTest);
                     }
                 }
-                if(updateArray) {
-                    setData({ arr: arrTest});
-                    form.setFieldValue(props.code, data.arr);
-                }
+                if(updateArray) saveValue(arrTest);
             }
 
             if(move) {
+                if( arrTest[activeIndex].type === 'line') checkLine(arrTest);
+                if( arrTest[activeIndex].type === 'area') checkArea(arrTest);
                 arrTest[activeIndex].dots[indexMove] = mouse[0];
                 arrTest[activeIndex].dots[indexMove + 1] = mouse[1];
-                setData({ arr: arrTest});
-                form.setFieldValue(props.code, data.arr);
+                saveValue(arrTest);
                 move = false;
                 indexMove = null;
             }
-
         }
     };
     const movePoint = (e) => {
@@ -179,15 +210,32 @@ function LinesAreasCanvasField(props) {
 
     const mousePosition = (e) => {
         let rect = canvas.current.getBoundingClientRect();
-        mouse = [e.clientX - rect.left,e.clientY - rect.top];
+        mouse = [Math.round((e.clientX - rect.left)),Math.round((e.clientY - rect.top))];
+        if(move) {
+            let arrTest = [...data.arr];
+            arrTest[activeIndex].dots[indexMove] = mouse[0];
+            arrTest[activeIndex].dots[indexMove + 1] = mouse[1];
+            canvasRender({arr: arrTest});
+        }
     };
 
     const deleteElement = (index,form) => {
         let arrTest = [...data.arr];
-        arrTest.splice(index,1);
-        setData({ arr: arrTest});
+        let errorElem = errorMessage.current.findIndex(el => el.index === index);
 
-        form.setFieldValue(props.code, data.arr);
+        errorMessage.current.forEach(el=>{
+            if(index <  el.index) {
+                let indString = el.message.indexOf(String(el.index + 1));
+                el.message = el.message.substr(0, indString) + ( el.index-- ) + el.message.substr(indString + 1);
+                el.index = el.index--;
+            }
+        });
+        if(errorElem != '-1') {
+            errorMessage.current.splice(errorElem,1);
+        }
+        arrTest.splice(index,1);
+        saveValue(arrTest)
+
     };
 
     const panelActive = (type) => {
@@ -242,7 +290,9 @@ function LinesAreasCanvasField(props) {
     return (
         <div>
 
-            <Field name={props.code}>
+            <Field name={props.code} validate={(value)=>{
+                return errorMessage.current.length > 0;
+            }}>
                 {({
                       field,
                       form,
@@ -256,7 +306,7 @@ function LinesAreasCanvasField(props) {
                                 ref={canvas}
                                 id={props.code}>
                         </canvas>
-                        <div className="canvasMenu">
+                        <div className="canvasMenu" style={{maxHeight:  canvasHeight.current + 'px'}}>
                             <div className="panel">
                                 <div className="panelItem" onClick={ () => panelActive('line')}>
                                     <img src="svg/line.svg" alt=""/>
@@ -297,9 +347,13 @@ function LinesAreasCanvasField(props) {
                                 }
                             </div>
                         </div>
-                        {meta.error && (
-                            <div className="error">{meta.error}</div>
-                        )}
+                        <div className="errorWrap">
+                            {errorMessage.current.length > 0 && (
+                                    errorMessage.current.map((item, index) => {
+                                        return <div className="error" key={index}>{item.message}</div>
+                                    })
+                            )}
+                        </div>
                     </div>
                 )}
             </Field>

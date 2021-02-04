@@ -1,5 +1,19 @@
 [
   {
+    "type": "lines_areas_canvas",
+    "default": false,
+    "key": "lines_and_areas",
+    "name": "Линии и области",
+    "parameters":{}
+  },
+  {
+    "type": "arrow_areas_canvas",
+    "default": false,
+    "key": "areas_with_directions",
+    "name": "Области с направлением",
+    "parameters":{}
+  },
+  {
     "type": "number",
     "default": true,
     "key": "event_generation_rate",
@@ -29,26 +43,12 @@
     "key": "rate_of_change",
     "name": "Скорость изменения карты",
     "parameters":{
-      "min": 0,
-      "max": 100,
-      "step": 10,
-      "max_key": null,
+      "min": 5,
+      "max": null,
+      "step": 5,
+      "max_key": "event_generation_rate",
       "min_key": null
     }
-  },
-  {
-    "type": "lines_areas_canvas",
-    "default": false,
-    "key": "lines_and_areas",
-    "name": "Линии и области",
-    "parameters":{}
-  },
-  {
-    "type": "arrow_areas_canvas",
-    "default": false,
-    "key": "areas_with_directions",
-    "name": "Области с направлением",
-    "parameters":{}
   },
   {
     "type": "select",
@@ -69,7 +69,7 @@
     "key": "vector_border",
     "name": "Границы вектора",
     "parameters":{
-      "min": 1,
+      "min": 0,
       "max": null,
       "max_key": "event_generation_rate",
       "min_key": null,

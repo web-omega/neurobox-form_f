@@ -22,7 +22,9 @@ a {
     padding: 65px 50px 80px 50px;
     box-shadow: 2px 2px 2px var(--dark-shadow-color);
 }
-
+.react-responsive-modal-modal {
+    max-width: 850px;
+}
 .react-responsive-modal-closeButton.modal-close-button:focus {
     outline: none;
 }
