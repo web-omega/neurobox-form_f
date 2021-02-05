@@ -21,7 +21,7 @@ function RangeField(props) {
         maxValue.current = props.parameters.max ?? form.values[props.parameters.max_key];
         minValue.current = props.parameters.min ?? form.values[props.parameters.minKey];
         if(maxValue.current <= minValue.current) {
-            errorInput.current = 'Ошибка зависимых полей '
+            errorInput.current = 'Ошибка зависимых значений.'
         } else {
             if(maxValue.current < form.values[props.code].max || form.values[props.code].max < minValue.current) {
                 form.setFieldValue(props.code + '.max', + maxValue.current);
@@ -90,7 +90,7 @@ function RangeField(props) {
                   form,
                   meta,
               }) => (
-                <div className={"inputGroup"}>
+                <div className={`inputGroup  ${errorInput.current === '' ? '':'disabledValue'}`} >
                     <label htmlFor={props.code}>{props.name}</label>
                     <div className="fakeSliderWrap">
                         <div className={"fakeSlider fakeSliderMultiple"} ref={slider}  onClick={(e)=> changeSelect(e)}>
@@ -119,7 +119,7 @@ function RangeField(props) {
                     </div>
 
                     <div className="labelValueWrap">
-                        <div className={"labelMultiple"}>
+                        <div className={"labelValue"}>
                             <div className="min">{props.parameters.min ?? form.values[props.parameters.min_key]}</div>
                             <div className="value"
                                  style={{left:((form.values[props.code].min - props.parameters.min ?? form.values[props.parameters.minKey]) / ((props.parameters.max ?? form.values[props.parameters.max_key]) - (props.parameters.min ?? form.values[props.parameters.minKey])) * 100 + '%')
@@ -130,8 +130,8 @@ function RangeField(props) {
                             <div className="max">{props.parameters.max ?? form.values[props.parameters.max_key]}</div>
                         </div>
                     </div>
-                    {meta.error && (
-                        <div className="error">{meta.error}</div>
+                    {errorInput.current !== '' && (
+                        <div className="error">{errorInput.current}</div>
                     )}
 
                 </div>

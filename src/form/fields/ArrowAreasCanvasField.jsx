@@ -15,7 +15,7 @@ function ArrowAreasCanvasField(props) {
     let errorMessage = useRef([]);
     let imageTest = useRef(new Image());
     const canvasWidth = useRef(600);
-    const canvasHeight = useRef(0);
+    const canvasHeight = useRef('');
     let loadImage = useRef(false);
     let originWidth = 0;
     let originHeight = 0;
@@ -26,7 +26,7 @@ function ArrowAreasCanvasField(props) {
     let indexMove = null;
     let moveArrow = false;
     let indexMoveArrow = null;
-    let scaleImage = null;
+    let scaleImage = useRef('');
 
     const canvas = useRef(null);
 
@@ -56,7 +56,15 @@ function ArrowAreasCanvasField(props) {
 
                 canvas.current.height = canvasHeight.current;
                 canvas.current.width = canvasWidth.current;
-                scaleImage =  canvasWidth.current/originWidth;
+                scaleImage.current = originWidth/canvasWidth.current;
+
+                let dataScale =  [...data.arr];
+                dataScale.forEach(el=>{
+                    el.dots = el.dots.map((e)=> Math.round(e / scaleImage.current))
+                    el.arrow = el.arrow.map((e)=> Math.round(e / scaleImage.current))
+                })
+                setData({ arr: dataScale});
+
                 canvasRender(data);
                 loadImage.current = true
             }
@@ -172,7 +180,12 @@ function ArrowAreasCanvasField(props) {
     };
     const saveValue = (arrTest)=>{
         setData({ arr: arrTest});
-        form.setFieldValue(props.code, data.arr);
+        let copy =  JSON.parse(JSON.stringify(data));
+        copy.arr.forEach(el=>{
+            el.dots = el.dots.map((e)=> Math.round(e * scaleImage.current))
+            el.arrow = el.arrow.map((e)=> Math.round(e * scaleImage.current))
+        })
+        form.setFieldValue(props.code, copy.arr);
     };
 
 
@@ -357,12 +370,17 @@ function ArrowAreasCanvasField(props) {
         });
         setIndex(() => ind)
     };
-    const setNewColor = (e,ind,form) => {
+    const setNewColor = (e,ind) => {
         let newColor = e.target.value.slice(1);
         let cloneState = [...data.arr];
         cloneState[ind].color = newColor;
         setData({arr: [...cloneState]});
-        form.setFieldValue(props.code, data.arr);
+        let copy =  JSON.parse(JSON.stringify(data));
+        copy.arr.forEach(el=>{
+            el.dots = el.dots.map((e)=> Math.round(e * scaleImage.current))
+            el.arrow = el.arrow.map((e)=> Math.round(e * scaleImage.current))
+        })
+        form.setFieldValue(props.code, copy.arr);
     };
 
 
@@ -408,7 +426,7 @@ function ArrowAreasCanvasField(props) {
                             <div className="items">
                                 {
                                     data.arr.map((item,index)=>{
-                                        return <div className={"item " + (activeIndex == index ?'active':'')}
+                                        return <div className={"item " + (activeIndex === index ?'active':'')}
                                                     key={index}
                                                     onClick={() => changeIndex(index)}
                                         >

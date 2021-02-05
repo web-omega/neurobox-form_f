@@ -2,7 +2,12 @@
     --light-text-color: #6b8691;
     --dark-shadow-color: rgba(0, 0, 0, 0.3);
     --modal-background-color: #2d4b56;
-    --error-color: rgb(121 114 96);
+    --range-background-color: #1d3340;
+    --menu-background-color: rgb(28, 51, 63);
+    --input-background-color: #577f8e;
+    --error-color: rgb(121, 114, 96);
+    --white-color: #ffffff;
+    --active-color: #2497E3;
 }
 
 form {
@@ -22,10 +27,11 @@ form {
     box-sizing: border-box;
 }
 .inputGroup input {
-    background: #577f8e;
+    background: var(--input-background-color);
     padding: 5px 10px;
-    color: #fff;
+    color: var(--white-color);
     border: none;
+    margin-bottom: 5px;
 }
 .inputGroup ::-webkit-outer-spin-button, .inputGroup ::-webkit-inner-spin-button  {
     -webkit-appearance: none;
@@ -41,9 +47,9 @@ form {
 }
 
 .inputGroup select {
-    background: #577f8e;
+    background: var(--input-background-color);
     padding: 5px 10px;
-    color: #fff;
+    color: var(--white-color);
     border: none;
     outline: none;
     display: inline-block;
@@ -51,10 +57,11 @@ form {
     -moz-box-sizing: border-box;
     -webkit-appearance: none;
     -moz-appearance: none;
+    /*css стрелка селекта*/
     background-image:
-            linear-gradient(45deg, transparent 50%,  #fafafa 50%),
-            linear-gradient(135deg, #fafafa 50%, transparent 50%),
-            linear-gradient(to right, #577f8e, #577f8e);
+            linear-gradient(45deg, transparent 50%,  var(--white-color) 50%),
+            linear-gradient(135deg, var(--white-color) 50%, transparent 50%),
+            linear-gradient(to right, var(--input-background-color), var(--input-background-color));
     background-position:
             calc(100% - 15px) 10px,
             calc(100% - 10px) 10px,
@@ -82,7 +89,7 @@ form {
 
 .canvasGroup .canvasMenu {
     width: 250px;
-    background: rgb(28, 51, 63);
+    background: var(--menu-background-color);
     overflow-y: auto;
 }
 .panel {
@@ -113,7 +120,7 @@ form {
 .item {
     width: 100%;
     padding: 10px;
-    border-bottom: 1px solid #577f8e;
+    border-bottom: 1px solid var(--input-background-color);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -139,8 +146,8 @@ form {
     padding: 0;
 }
 .items .active {
-    background: #577f8e;
-    color: #1d3340;
+    background: var(--input-background-color);
+    color: var(--range-background-color);
 }
 .items .itemLabel {
     display: flex;
@@ -180,8 +187,9 @@ form {
 .fakeSliderWrap {
     width: 100%;
     padding: 0 10px;
-    background-color: #1d3340;
+    background-color: var(--range-background-color);
     border-radius: 15px;
+    overflow: hidden;
 }
 .fakeSlider {
     display: flex;
@@ -209,9 +217,9 @@ form {
     background-position: 100% 100%;
 }
 .thumb {
-    border: 5px solid #fff;
+    border: 5px solid var(--white-color);
     border-radius: 25px;
-    background: #2497E3;
+    background: var(--active-color);
     width: 20px;
     height: 20px;
     transform: translate(-50%,-50%);
@@ -257,7 +265,7 @@ form {
     top: 10px;
     font-size: 16px;
     font-weight: 700;
-    color: #2497E3;
+    color: var(--active-color);
     z-index: 5;
     transform: translateX(-50%);
 }
@@ -277,8 +285,14 @@ form {
 .wrapButton button{
     border: none;
     cursor: pointer;
-    color: #fff;
+    color: var(--white-color);
     text-transform: uppercase;
-    background-color: #2497E3;
+    background-color: var(--active-color);
     padding: 10px 20px;
+}
+
+.disabledValue .fakeSliderWrap ,.disabledValue .labelValueWrap{
+    opacity: .05;
+    pointer-events: none;
+    cursor: not-allowed;
 }

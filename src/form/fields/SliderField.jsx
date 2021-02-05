@@ -19,7 +19,6 @@ function SliderField(props) {
 
 
     useEffect(()=>{
-        //errorInput.current = '';
         rect.current = slider.current.getBoundingClientRect();
         maxValue.current = props.parameters.max ?? form.values[props.parameters.max_key];
         minValue.current = props.parameters.min ?? form.values[props.parameters.minKey];
@@ -27,7 +26,7 @@ function SliderField(props) {
 
         if(maxValue.current <= minValue.current) {
             //"Ошибка зависимых значений. Исправьте поле fieldName"
-            errorInput.current = 'Ошибка зависимого поля '
+            errorInput.current = 'Ошибка зависимых значений.'
         } else {
 
             errorInput.current = '';
@@ -74,7 +73,7 @@ function SliderField(props) {
                   form,
                   meta,
               }) => (
-                <div className={"inputGroup"}>
+                <div className={`inputGroup  ${errorInput.current === '' ? '':'disabledValue'}`} >
                     <label htmlFor={props.code}>{props.name}</label>
                     <div className="fakeSliderWrap">
                         <div className={"fakeSlider"} ref={slider} onClick={(e)=> changeSelect(e)}>
@@ -99,8 +98,8 @@ function SliderField(props) {
                             <div className="max">{props.parameters.max ?? form.values[props.parameters.max_key]}</div>
                         </div>
                     </div>
-                    {meta.error && (
-                        <div className="error">{meta.error}</div>
+                    {errorInput.current && (
+                        <div className="error">{errorInput.current}</div>
                     )}
                 </div>
             )}

@@ -86,26 +86,6 @@ const lineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
         return {result: !(array.includes(x1 + t * a_dx) && array.includes( y1 + t * a_dy)), arr: array} ;
     }
     return {result: false, arr: array};
-    // let ua, ub, denom = (y4 - y3)*(x2 - x1) - (x4 - x3)*(y2 - y1);
-    // let intersect = false;
-    // if (denom == 0) {
-    //     return intersect;
-    // }
-    // ua = ((x4 - x3)*(y1 - y3) - (y4 - y3)*(x1 - x3))/denom;
-    // ub = ((x2 - x1)*(y1 - y3) - (y2 - y1)*(x1 - x3))/denom;
-    // let result = {
-    //     x: x1 + ua * (x2 - x1),
-    //     y: y1 + ua * (y2 - y1),
-    //     seg1: ua >= 0 && ua <= 1,
-    //     seg2: ub >= 0 && ub <= 1
-    // };
-    // let array = [];
-    // if(result.seg1 || result.seg2){
-    //     array = [x1, y1, x2, y2, x3, y3, x4, y4];
-    //     intersect = !(array.includes(result.x) && array.includes(result.y))
-    // }
-    // console.log(result,array)
-    //return intersect;
 };
 
 export {convexShape,hexToRgb,inPoly,lineIntersect}
