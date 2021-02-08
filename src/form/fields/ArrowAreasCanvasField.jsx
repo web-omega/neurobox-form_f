@@ -1,6 +1,14 @@
 import React, {Component, useEffect, useState,useRef} from 'react';
 import {Field, useFormikContext} from "formik";
 import {convexShape,hexToRgb,inPoly} from './utils'
+import area from './../../assets/area.svg';
+import areaSpeed from './../../assets/areaSpeed.svg';
+import edit from './../../assets/edit.svg';
+import editActive from './../../assets/editActive.svg';
+import arrow from './../../assets/arrow.svg';
+import arrowActive from './../../assets/arrowActive.svg';
+import eraser from './../../assets/eraser.svg';
+import eraserActive from './../../assets/eraserActive.svg';
 
 function ArrowAreasCanvasField(props) {
 
@@ -17,6 +25,7 @@ function ArrowAreasCanvasField(props) {
     const canvasWidth = useRef(600);
     const canvasHeight = useRef('');
     let loadImage = useRef(false);
+    let cursor = useRef('');
     let originWidth = 0;
     let originHeight = 0;
     let mouse = [];
@@ -58,12 +67,13 @@ function ArrowAreasCanvasField(props) {
                 canvas.current.width = canvasWidth.current;
                 scaleImage.current = originWidth/canvasWidth.current;
 
-                let dataScale =  [...data.arr];
-                dataScale.forEach(el=>{
+                let copy =  JSON.parse(JSON.stringify(data));
+                copy.arr.forEach(el=>{
                     el.dots = el.dots.map((e)=> Math.round(e / scaleImage.current))
                     el.arrow = el.arrow.map((e)=> Math.round(e / scaleImage.current))
-                })
-                setData({ arr: dataScale});
+                });
+                if(copy.arr.length > 0) setIndex(()=> 0)
+                setData({ arr: copy.arr});
 
                 canvasRender(data);
                 loadImage.current = true
@@ -86,6 +96,7 @@ function ArrowAreasCanvasField(props) {
             ctxCanvas.current.beginPath();
             for(let i = 0; i< el.dots.length; i = i + 2){
                 ctxCanvas.current.beginPath();
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.fillStyle = "#" + el.color;
                 ctxCanvas.current.arc(el.dots[i], el.dots[i+1], 5, 0, 2*Math.PI);
                 ctxCanvas.current.fill();
@@ -101,10 +112,10 @@ function ArrowAreasCanvasField(props) {
                 }
                 ctxCanvas.current.lineTo(el.dots[0],el.dots[1]);
                 let rgb = hexToRgb( "#" + el.color);
-                let color = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', .5)';
+                let color = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', .3)';
                 ctxCanvas.current.fillStyle = color ;
                 ctxCanvas.current.strokeStyle = "#" + el.color ;
-                ctxCanvas.current.lineWidth =  3;
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.fill();
                 ctxCanvas.current.stroke();
                 ctxCanvas.current.closePath();
@@ -122,12 +133,13 @@ function ArrowAreasCanvasField(props) {
         });
     };
     const canvasArrow = (fromx, fromy, tox, toy) =>{
-        let arrowLen = 25;
+        let arrowLen = 15;
         let dx = tox-fromx;
         let dy = toy-fromy;
         let angle = Math.atan2(dy,dx);
         ctxCanvas.current.beginPath();
-        ctxCanvas.current.lineWidth =  5;
+
+        ctxCanvas.current.lineWidth =  2;
         ctxCanvas.current.moveTo(fromx, fromy);
         ctxCanvas.current.lineTo(tox, toy);
         ctxCanvas.current.stroke();
@@ -140,8 +152,30 @@ function ArrowAreasCanvasField(props) {
         ctxCanvas.current.closePath();
     };
 
-    const checkArea = (arrTest) => {
+    const checkValidateArea = (arrTest) => {
         let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'area');
+        let errorElemEmpty = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'areaEmpty');
+        arrowInPoly(arrTest);
+
+        if (arrTest[activeIndex].dots.length < 5 && errorElemEmpty === -1) {
+            errorMessage.current.push({
+                type: 'areaEmpty',
+                index: activeIndex,
+                message: 'Фигура ' + (activeIndex + 1) + ' должна состоять минимум из трёх точек.'
+            });
+            return
+        }
+        if(arrTest[activeIndex].dots.length < 5 && errorElem != -1) {
+            errorMessage.current[errorElem].message = 'Фигура ' + (activeIndex + 1) + ' должна состоять минимум из трёх точек.'
+            errorMessage.current[errorElem].type = 'areaEmpty'
+            return
+        }
+        if(arrTest[activeIndex].dots.length < 5 && errorElemEmpty != -1) {
+            return
+        }
+        if (arrTest[activeIndex].dots.length >= 5 && errorElemEmpty != -1) {
+            errorMessage.current.splice(errorElemEmpty,1)
+        }
         let checkConvex = convexShape(arrTest[activeIndex].dots)
         if (!checkConvex && errorElem == '-1') {
             errorMessage.current.push({
@@ -149,33 +183,39 @@ function ArrowAreasCanvasField(props) {
                 index: activeIndex,
                 message: 'Фигура ' + (activeIndex + 1) + ' не выпуклая.'
             });
-        } else if(checkConvex && errorElem != '-1') errorMessage.current.splice(errorElem,1)
-    };
+            return
+        } else if(checkConvex && errorElem != '-1') {
+            errorMessage.current.splice(errorElem,1);
+        }
+
+
+    }
     const arrowInPoly = (arrTest)=>{
 
         let testInPoly = true;
         if(arrTest[activeIndex].arrow.length === 4) {
             testInPoly = inPoly(arrTest[activeIndex].arrow[0],arrTest[activeIndex].arrow[1], arrTest[activeIndex].dots) && inPoly(arrTest[activeIndex].arrow[2],arrTest[activeIndex].arrow[3], arrTest[activeIndex].dots);
             let errorCount = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'arrow' && el.arrowCount);
-            errorMessage.current.splice(errorCount,1)
+            if(errorCount !== -1) errorMessage.current.splice(errorCount,1)
         }
-
         let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'arrow');
         if(arrTest[activeIndex].arrow.length === 2){
             errorMessage.current.push({
                 type: 'arrow',
                 index: activeIndex,
                 arrowCount: true,
-                message: 'Направление не может содержать только одну точку (область ' + (activeIndex + 1) + ')'
+                message: 'Направление не может содержать только одну точку (Фигура ' + (activeIndex + 1) + ')'
             });
+            return
         }
         if (!testInPoly && errorElem == '-1') {
             errorMessage.current.push({
                 type: 'arrow',
                 index: activeIndex,
-                message: 'Направление должно находиться внутри активной области (область ' + (activeIndex + 1) + ')'
+                message: 'Направление должно находиться внутри активной области (Фигура ' + (activeIndex + 1) + ')'
             });
-        } else if(testInPoly && errorElem != '-1') errorMessage.current.splice(errorElem,1)
+            return
+        } else if(testInPoly && errorElem != '-1') errorMessage.current.splice(errorElem,1);
 
     };
     const saveValue = (arrTest)=>{
@@ -189,15 +229,13 @@ function ArrowAreasCanvasField(props) {
     };
 
 
-    const paintCanvas = (e,form) => {
+    const paintCanvas = () => {
 
         if(activeIndex !== ''){
             let arrTest = [...data.arr];
             if(!stateButton.eraser && !stateButton.edit && !stateButton.arrow){
                 arrTest[activeIndex].dots.push(mouse[0],mouse[1]);
-                if(arrTest[activeIndex].dots.length > 5) {
-                    checkArea(arrTest)
-                }
+                checkValidateArea(arrTest);
                 saveValue(arrTest)
             }
             if(stateButton.eraser){
@@ -209,7 +247,7 @@ function ArrowAreasCanvasField(props) {
                     if(distArr < 10){
                         arrTest[activeIndex].dots.splice(i,2);
                         updateArray = true;
-                        checkArea(arrTest);
+                        checkValidateArea(arrTest);
                     }
                 }
                 for (let i = 0; i<  arrTest[activeIndex].arrow.length; i=i+2){
@@ -219,7 +257,7 @@ function ArrowAreasCanvasField(props) {
                     if(distArr < 10){
                         arrTest[activeIndex].arrow.splice(i,2);
                         updateArray = true;
-                        arrowInPoly(arrTest)
+                        checkValidateArea(arrTest)
                     }
                 }
                 if(updateArray) saveValue(arrTest)
@@ -227,7 +265,7 @@ function ArrowAreasCanvasField(props) {
             if(move) {
                 arrTest[activeIndex].dots[indexMove] = mouse[0];
                 arrTest[activeIndex].dots[indexMove + 1] = mouse[1];
-                checkArea(arrTest);
+                checkValidateArea(arrTest);
                 saveValue(arrTest);
                 move = false;
                 indexMove = null;
@@ -235,22 +273,21 @@ function ArrowAreasCanvasField(props) {
             if(moveArrow) {
                 arrTest[activeIndex].arrow[indexMoveArrow] = mouse[0];
                 arrTest[activeIndex].arrow[indexMoveArrow + 1] = mouse[1];
-                arrowInPoly(arrTest);
+                checkValidateArea(arrTest);
                 saveValue(arrTest);
 
                 moveArrow = false;
                 indexMoveArrow = null;
             }
             if(stateButton.arrow) {
-                if(arrTest[activeIndex].arrow.length === 4) {
-                    alert('Область может содержать только одно направление, для изменения перейдите в соответствуюшие пункты');
-                    return
-                }
+                if(arrTest[activeIndex].arrow.length === 4) return
+
                 arrTest[activeIndex].arrow.push(mouse[0]);
                 arrTest[activeIndex].arrow.push(mouse[1]);
-                arrowInPoly(arrTest);
+                checkValidateArea(arrTest);
                 saveValue(arrTest);
             }
+
         }
         canvasRender(data);
     };
@@ -258,7 +295,7 @@ function ArrowAreasCanvasField(props) {
 
 
     const movePoint = (e) => {
-        if(stateButton.edit){
+        if(stateButton.edit && activeIndex !== ''){
             let arrTest = [...data.arr];
             for (let i = 0; i<  arrTest[activeIndex].dots.length; i=i+2){
                 let dxArr = arrTest[activeIndex].dots[i] - mouse[0];
@@ -299,7 +336,8 @@ function ArrowAreasCanvasField(props) {
     };
     const indexOfAll = (arr, val) => arr.reduce((acc, el, i) => (el.index === val ? [...acc, i] : acc), []);
 
-    const deleteElement = (index) => {
+    const deleteElement = (index,e) => {
+        e.stopPropagation();
         let arrTest = [...data.arr];
         let errorElem = errorMessage.current.findIndex(el => el.index === index);
         let errorElem2 = indexOfAll(errorMessage.current, index);
@@ -317,6 +355,15 @@ function ArrowAreasCanvasField(props) {
             });
 
         }
+        setValueButton({
+            areaSpeed: false,
+            area: false,
+            edit: false,
+            eraser: false,
+            arrow: false
+        });
+        setIndex(()=>'');
+        cursor.current = '';
         arrTest.splice(index,1);
         saveValue(arrTest)
     };
@@ -345,17 +392,26 @@ function ArrowAreasCanvasField(props) {
             setIndex(()=> data.arr.length);
             cloneState.push(newLine);
             setData({arr: [...cloneState]});
+
         }
+        if(stateButton[type]){
+            setValueButton({
+                [type]: !stateButton[type]
+            });
+            cursor.current = data.arr[activeIndex].type === 'arrow_area' ? 'area':'areaSpeed';
+            return
+        }
+
         if(type === 'edit' || type === 'eraser' ) {
             if(activeIndex === '') {
-                alert('Для начала нужно выбрать создать или выбрать элемент');
                 return
             }
-            if(data.arr[activeIndex].dots.length === 0) {
-                alert('У данного элемента нет точек');
+            if(data.arr[activeIndex].dots.length === 0 && data.arr[activeIndex].arrow.length === 0) {
                 return
             }
         }
+        if(type === 'arrow' && activeIndex === '') return
+        cursor.current = type;
         setValueButton({
             [type]: !stateButton[type]
         })
@@ -368,6 +424,7 @@ function ArrowAreasCanvasField(props) {
             eraser: false,
             arrow: false
         });
+        cursor.current = data.arr[ind].type === 'arrow_area' ? 'area':'areaSpeed'
         setIndex(() => ind)
     };
     const setNewColor = (e,ind) => {
@@ -400,27 +457,29 @@ function ArrowAreasCanvasField(props) {
                                 onMouseUp={(e) => paintCanvas(e,form)}
                                 onMouseDown={(e) => movePoint(e)}
                                 ref={canvas}
-                                id={props.code}>
+                                id={props.code}
+                                className={cursor.current}
+                        >
                         </canvas>
                         <div className="canvasMenu" style={{maxHeight:  canvasHeight.current + 'px'}}>
                             <div className="panel">
                                 <div className="panelItem" onClick={ () => panelActive('area')}>
-                                    <img src="svg/area.svg" alt=""/>
+                                    <img src={area} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('areaSpeed')} className={stateButton.area ? '':'active'}>
-                                    <img src="svg/areaSpeed.svg" alt=""/>
+                                    <img src={areaSpeed} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('edit')} className={stateButton.edit ? '':'active'}>
-                                    <img className={"imageActive"} src="svg/edit.svg" alt=""/>
-                                    <img className={"imageDefault"} src="svg/editActive.svg" alt=""/>
+                                    <img className={"imageActive"} src={edit} alt=""/>
+                                    <img className={"imageDefault"} src={editActive} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('arrow')} className={stateButton.arrow ? '':'active'}>
-                                    <img className={"imageActive"} src="svg/arrow.svg" alt=""/>
-                                    <img className={"imageDefault"} src="svg/arrowActive.svg" alt=""/>
+                                    <img className={"imageActive"} src={arrow} alt=""/>
+                                    <img className={"imageDefault"} src={arrowActive} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('eraser')} className={stateButton.eraser ? '':'active'}>
-                                    <img className={"imageActive"} src="svg/eraser.svg" alt=""/>
-                                    <img className={"imageDefault"} src="svg/eraserActive.svg" alt=""/>
+                                    <img className={"imageActive"} src={eraser} alt=""/>
+                                    <img className={"imageDefault"} src={eraserActive} alt=""/>
                                 </div>
                             </div>
                             <div className="items">
@@ -432,8 +491,8 @@ function ArrowAreasCanvasField(props) {
                                         >
                                             {(() => {
                                                     switch (item.type) {
-                                                        case "arrow_area": return <div className={"itemLabel"}><img src="svg/area.svg" alt=""/>Область {index + 1}</div>;
-                                                        case "speed_arrow_area": return <div className={"itemLabel"}><img src="svg/areaSpeed.svg" alt=""/>Область {index + 1}</div>;
+                                                        case "arrow_area": return <div className={"itemLabel"}><img src={area} alt=""/>Фигура {index + 1}</div>;
+                                                        case "speed_arrow_area": return <div className={"itemLabel"}><img src={areaSpeed} alt=""/>Фигура {index + 1}</div>;
                                                         default: return "-";
                                                     }
                                                 }
@@ -441,7 +500,7 @@ function ArrowAreasCanvasField(props) {
                                             <div className="color" style={{background: '#' + item.color}}>
                                                 <input onChange={(e)=>{setNewColor(e,index,form)}} value={'#' + item.color} type="color"/>
                                             </div>
-                                            <div className="deleteElement" onClick={() => deleteElement(index,form)}>&times;</div>
+                                            <div className="deleteElement" onClick={(e) => deleteElement(index,e)}>&times;</div>
                                         </div>
                                     })
                                 }

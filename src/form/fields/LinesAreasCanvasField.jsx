@@ -1,7 +1,15 @@
 
 import React, {Component, useEffect, useState,useRef} from 'react';
 import {Field, useFormikContext} from "formik";
-import {convexShape,hexToRgb,lineIntersect} from './utils'
+import {convexShape,hexToRgb,lineIntersect} from './utils';
+import area from './../../assets/area.svg';
+import areaActive from './../../assets/areaActive.svg';
+import line from './../../assets/line.svg';
+import lineActive from './../../assets/lineActive.svg';
+import edit from './../../assets/edit.svg';
+import editActive from './../../assets/editActive.svg';
+import eraser from './../../assets/eraser.svg';
+import eraserActive from './../../assets/eraserActive.svg';
 
 function LinesAreasCanvasField(props) {
     const form = useFormikContext();
@@ -15,6 +23,7 @@ function LinesAreasCanvasField(props) {
     const canvasWidth = useRef(600);
     const canvasHeight = useRef('');
     let loadImage = useRef(false);
+    let cursor = useRef('');
 
     let originWidth = 0;
     let originHeight = 0;
@@ -53,11 +62,15 @@ function LinesAreasCanvasField(props) {
                 canvas.current.height = canvasHeight.current;
                 canvas.current.width = canvasWidth.current;
                 scaleImage.current =  originWidth/canvasWidth.current;
-                let dataScale =  [...data.arr];
-                dataScale.forEach(el=>{
+
+                let copy =  JSON.parse(JSON.stringify(data));
+
+                copy.arr.forEach(el=>{
                     el.dots = el.dots.map((e)=> Math.round(e / scaleImage.current))
                 })
-                setData({ arr: dataScale});
+                if(copy.arr.length > 0) setIndex(()=> 0)
+
+                setData({ arr: copy.arr});
 
                 canvasRender(data);
                 loadImage.current = true
@@ -80,6 +93,7 @@ function LinesAreasCanvasField(props) {
             ctxCanvas.current.beginPath();
             for(let i = 0; i< el.dots.length; i = i + 2){
                 ctxCanvas.current.beginPath();
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.fillStyle = "#" + el.color;
                 ctxCanvas.current.arc(el.dots[i], el.dots[i+1], 5, 0, 2*Math.PI);
                 ctxCanvas.current.fill();
@@ -87,28 +101,30 @@ function LinesAreasCanvasField(props) {
             ctxCanvas.current.closePath();
             if(el.type === 'line') {
                 ctxCanvas.current.beginPath();
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.moveTo(el.dots[0],el.dots[1]);
                 for(let i = 0; i< el.dots.length; i = i + 2){
                     ctxCanvas.current.lineTo(el.dots[i],el.dots[i+1])
                 }
                 ctxCanvas.current.strokeStyle =  "#" + el.color;
-                ctxCanvas.current.lineWidth =  3;
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.stroke();
                 ctxCanvas.current.closePath();
             }
             if(el.type === 'area') {
 
                 ctxCanvas.current.beginPath();
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.moveTo(el.dots[0],el.dots[1]);
                 for(let i = 0; i< el.dots.length; i = i + 2){
                     ctxCanvas.current.lineTo(el.dots[i],el.dots[i+1])
                 }
                 ctxCanvas.current.lineTo(el.dots[0],el.dots[1]);
                 let rgb = hexToRgb( "#" + el.color);
-                let color = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', .5)';
+                let color = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ', .3)';
                 ctxCanvas.current.strokeStyle = "#" + el.color;
                 ctxCanvas.current.fillStyle = color;
-                ctxCanvas.current.lineWidth =  3;
+                ctxCanvas.current.lineWidth =  2;
                 ctxCanvas.current.fill();
                 ctxCanvas.current.stroke();
                 ctxCanvas.current.closePath();
@@ -119,6 +135,23 @@ function LinesAreasCanvasField(props) {
 
     const checkLine = (arrTest)=> {
         let n = (arrTest[activeIndex].dots.length + 1);
+
+        let errorElemEmpty = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'lineEmpty');
+        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'line');
+
+        if(n <= 3 && errorElemEmpty === -1) {
+            errorMessage.current.push({
+                type: 'lineEmpty',
+                index: activeIndex,
+                message: 'Линия ' + (activeIndex + 1) + ' должна стостоять минимум из двух точек.'
+            })
+            return
+        } else if ( n <=3 && errorElem != -1 ) {
+            errorMessage.current[errorElem].message = 'Линия ' + (activeIndex + 1) + ' должна стостоять минимум из двух точек.'
+            errorMessage.current[errorElem].type = 'lineEmpty'
+            return
+        } else if(n > 3 && errorElemEmpty != -1) errorMessage.current.splice(errorElem,1)
+
         let intersect = false;
         for (let i = 0; i < n - 1; i=i+2) {
             for (let j = 0; j < n - 1; j=j+2) {
@@ -134,7 +167,7 @@ function LinesAreasCanvasField(props) {
                 if(test.result) intersect = true
             }
         }
-        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex);
+
         if(intersect && errorElem == '-1') {
             errorMessage.current.push({
                 type: 'line',
@@ -145,7 +178,25 @@ function LinesAreasCanvasField(props) {
     };
 
     const checkArea = (arrTest) => {
-        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex);
+        let errorElem = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'area');
+        let errorElemEmpty = errorMessage.current.findIndex(el => el.index === activeIndex && el.type === 'areaEmpty');
+
+        if (arrTest[activeIndex].dots.length < 5 && errorElemEmpty === -1) {
+            errorMessage.current.push({
+                type: 'areaEmpty',
+                index: activeIndex,
+                message: 'Фигура ' + (activeIndex + 1) + ' должна состоять минимум из трёх точек.'
+            });
+            return
+        } else if(arrTest[activeIndex].dots.length < 5 && errorElem != -1) {
+            errorMessage.current[errorElem].message = 'Фигура ' + (activeIndex + 1) + ' должна состоять минимум из трёх точек.'
+            errorMessage.current[errorElem].type = 'areaEmpty'
+            return
+        } else if(arrTest[activeIndex].dots.length < 5 && errorElemEmpty != -1) {
+            return
+        } else if (arrTest[activeIndex].dots.length >= 5 && errorElemEmpty != -1) errorMessage.current.splice(errorElemEmpty,1)
+
+
         let checkConvex = convexShape(arrTest[activeIndex].dots)
         if (!checkConvex && errorElem == '-1') {
             errorMessage.current.push({
@@ -158,24 +209,24 @@ function LinesAreasCanvasField(props) {
 
     const saveValue = (arrTest)=>{
         setData({ arr: arrTest});
-
         let copy =  JSON.parse(JSON.stringify(data));
-
         copy.arr.forEach(el=>{
             el.dots = el.dots.map((e)=> Math.round(e * scaleImage.current))
         })
         form.setFieldValue(props.code, copy.arr);
     };
 
-    const paintCanvas = (e,form) => {
+
+    const paintCanvas = () => {
+
         if(activeIndex !== ''){
             let arrTest = [...data.arr];
             if(!stateButton.eraser && !stateButton.edit){
                 arrTest[activeIndex].dots.push(mouse[0],mouse[1]);
-                if(arrTest[activeIndex].type === 'line' && arrTest[activeIndex].dots.length > 7) {
+                if(arrTest[activeIndex].type === 'line') {
                     checkLine(arrTest)
                 }
-                if(arrTest[activeIndex].dots.length > 5 && arrTest[activeIndex].type === 'area') {
+                if(arrTest[activeIndex].type === 'area') {
                     checkArea(arrTest);
                 }
                 saveValue(arrTest);
@@ -208,7 +259,7 @@ function LinesAreasCanvasField(props) {
         }
     };
     const movePoint = (e) => {
-        if(stateButton.edit){
+        if(stateButton.edit && activeIndex !== ''){
             let arrTest = [...data.arr];
             for (let i = 0; i<  arrTest[activeIndex].dots.length; i=i+2){
                 let dxArr = arrTest[activeIndex].dots[i] - mouse[0];
@@ -233,7 +284,8 @@ function LinesAreasCanvasField(props) {
         }
     };
 
-    const deleteElement = (index,form) => {
+    const deleteElement = (index,e) => {
+        e.stopPropagation();
         let arrTest = [...data.arr];
         let errorElem = errorMessage.current.findIndex(el => el.index === index);
 
@@ -247,6 +299,14 @@ function LinesAreasCanvasField(props) {
         if(errorElem != '-1') {
             errorMessage.current.splice(errorElem,1);
         }
+        setValueButton({
+            line: false,
+            area: false,
+            edit: false,
+            eraser: false,
+        });
+        setIndex(() => '');
+        cursor.current = '';
         arrTest.splice(index,1);
         saveValue(arrTest)
 
@@ -275,22 +335,29 @@ function LinesAreasCanvasField(props) {
             cloneState.push(newLine);
             setData({arr: [...cloneState]});
         }
-        if(type === 'edit' || type === 'eraser' ) {
-            if(activeIndex === '') {
-                alert('Для начала нужно выбрать создать или выбрать элемент');
-                return
-            }
-            if(data.arr[activeIndex].dots.length === 0) {
-                alert('У данного элемента нет точек');
-                return
-            }
+        if(stateButton[type]){
+            setValueButton({
+                [type]: !stateButton[type]
+            });
+            cursor.current = data.arr[activeIndex].type === 'line' ? 'line':'area'
+            return
         }
+        if((type === 'edit' || type === 'eraser') && (activeIndex === '' || data.arr[activeIndex].dots.length === 0)) return
+
+        cursor.current = type;
         setValueButton({
             [type]: !stateButton[type]
         })
     };
     const changeIndex = (ind) => {
-        setIndex(() => ind)
+        setIndex(() => ind);
+        setValueButton({
+            line: false,
+            area: false,
+            edit: false,
+            eraser: false,
+        });
+        cursor.current = data.arr[ind].type === 'line' ? 'line':'area'
     };
     const setNewColor = (e,ind) => {
         let newColor = e.target.value.slice(1);
@@ -313,9 +380,7 @@ function LinesAreasCanvasField(props) {
                 return errorMessage.current.length > 0;
             }}>
                 {({
-                      field,
                       form,
-                      meta,
                   }) => (
                     <div className={"canvasGroup"}>
                         <label htmlFor={props.code}>{props.name}</label>
@@ -323,23 +388,25 @@ function LinesAreasCanvasField(props) {
                                 onMouseUp={(e) => paintCanvas(e,form)}
                                 onMouseDown={(e) => movePoint(e)}
                                 ref={canvas}
-                                id={props.code}>
+                                id={props.code}
+                                className={cursor.current}
+                        >
                         </canvas>
                         <div className="canvasMenu" style={{maxHeight:  canvasHeight.current + 'px'}}>
                             <div className="panel">
                                 <div className="panelItem" onClick={ () => panelActive('line')}>
-                                    <img src="svg/line.svg" alt=""/>
+                                    <img src={line} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('area')} className={stateButton.area ? '':'active'}>
-                                    <img src="svg/area.svg" alt=""/>
+                                    <img src={area} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('edit')} className={stateButton.edit ? '':'active'}>
-                                    <img className={"imageActive"} src="svg/edit.svg" alt=""/>
-                                    <img className={"imageDefault"} src="svg/editActive.svg" alt=""/>
+                                    <img className={"imageActive"} src={edit} alt=""/>
+                                    <img className={"imageDefault"} src={editActive} alt=""/>
                                 </div>
                                 <div className="panelItem" onClick={ () => panelActive('eraser')} className={stateButton.eraser ? '':'active'}>
-                                    <img className={"imageActive"} src="svg/eraser.svg" alt=""/>
-                                    <img className={"imageDefault"} src="svg/eraserActive.svg" alt=""/>
+                                    <img className={"imageActive"} src={eraser} alt=""/>
+                                    <img className={"imageDefault"} src={eraserActive} alt=""/>
                                 </div>
                             </div>
                             <div className="items">
@@ -351,8 +418,8 @@ function LinesAreasCanvasField(props) {
                                         >
                                             {(() => {
                                                     switch (item.type) {
-                                                        case "line": return <div className={"itemLabel"}><img src="svg/line.svg" alt=""/>Линия {index + 1}</div>;
-                                                        case "area": return <div className={"itemLabel"}><img src="svg/area.svg" alt=""/>Область {index + 1}</div>;
+                                                        case "line": return <div className={"itemLabel"}><img src={line} alt=""/>Линия {index + 1}</div>;
+                                                        case "area": return <div className={"itemLabel"}><img src={area} alt=""/>Фигура {index + 1}</div>;
                                                         default: return "-";
                                                     }
                                                 }
@@ -360,7 +427,7 @@ function LinesAreasCanvasField(props) {
                                             <div className="color" style={{background: '#' + item.color}}>
                                                 <input onChange={(e)=>{setNewColor(e,index,form)}} value={'#' + item.color} type="color"/>
                                             </div>
-                                            <div className="deleteElement" onClick={() => deleteElement(index,form)}>&times;</div>
+                                            <div className="deleteElement" onClick={(e) => deleteElement(index,e)}>&times;</div>
                                         </div>
                                     })
                                 }

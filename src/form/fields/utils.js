@@ -1,4 +1,3 @@
-
 const convexShape = (dots)=>{
     let result = [];
     for(let i=0; i< dots.length; i=i+2){

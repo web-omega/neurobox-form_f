@@ -2,21 +2,22 @@
     --light-text-color: #6b8691;
     --dark-shadow-color: rgba(0, 0, 0, 0.3);
     --modal-background-color: #2d4b56;
-    --range-background-color: #1d3340;
-    --menu-background-color: rgb(28, 51, 63);
-    --input-background-color: #577f8e;
-    --error-color: rgb(121, 114, 96);
+    --range-background-color: #1C343D;
+    --menu-background-color: #122930;
+    --input-background-color: #435e67;
+    --error-color: #f7b674;
     --white-color: #ffffff;
     --active-color: #2497E3;
 }
 
 form {
     display: flex;
+    justify-content: space-between;
     flex-wrap: wrap;
 }
 
 .inputGroup {
-    width: 50%;
+    width: 48%;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -42,7 +43,7 @@ form {
 }
 .inputGroup label,.canvasGroup {
     font-weight: 700;
-
+    font-size: 16px;
     padding: 10px 0
 }
 
@@ -93,10 +94,13 @@ form {
     overflow-y: auto;
 }
 .panel {
+    padding: 10px;
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px solid var(--input-background-color);
 }
 .panel img {
+    width: 35px;
     cursor: pointer;
 }
 .imageDefault, .imageActive {
@@ -127,13 +131,15 @@ form {
     position: relative;
 }
 .item .deleteElement {
-    position: absolute;
-    right: 10px;
-    top: 7px;
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-size: 26px;
+    font-weight: 100;
+    padding-bottom: 3px;
 }
 .item .color {
-    margin-left: 20px;
+    margin: 0 15px;
     width: 20px;
     height: 20px;
     overflow: hidden;
@@ -152,6 +158,7 @@ form {
 .items .itemLabel {
     display: flex;
     align-items: center;
+    flex-grow: 2;
 }
 .itemLabel img {
     width: 25px;
@@ -179,9 +186,16 @@ form {
     background-color: var(--light-text-color);
 }
 .errorWrap {
-    height: 30px;
+    padding-top: 5px;
+    min-height: 30px;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-end;
 }
 .error {
+    font-weight: 300;
+    font-size: 18px;
     color: var(--error-color);
 }
 .fakeSliderWrap {
@@ -202,7 +216,7 @@ form {
 }
 .selectActive {
     height: 10px;
-    background-image: url("svg/circleDefault.svg");
+    background-image: url("assets/circleDefault.svg");
     background-color: transparent;
     background-size: 10px;
     background-repeat: repeat-x;
@@ -210,7 +224,7 @@ form {
 }
 .selectNew {
     height: 10px;
-    background-image: url("svg/circleActive.svg");
+    background-image: url("assets/circleActive.svg");
     background-color: transparent;
     background-size: 10px;
     background-repeat: repeat-x;
@@ -245,6 +259,8 @@ form {
 }
 .labelValue {
     width: 100%;
+    min-height: 10px;
+    font-size: 16px;
     margin: 5px 2px;
     position: relative;
 }
@@ -262,9 +278,9 @@ form {
 }
 .value {
     position: absolute;
-    top: 10px;
+    //top: 10px;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--active-color);
     z-index: 5;
     transform: translateX(-50%);
@@ -295,4 +311,22 @@ form {
     opacity: .05;
     pointer-events: none;
     cursor: not-allowed;
+}
+.area {
+    cursor: url('assets/cursors/area.png'), auto;
+}
+.areaSpeed {
+    cursor: url('assets/cursors/areaSpeed.png'), auto;
+}
+.arrow {
+    cursor: url('assets/cursors/arrow.png'), auto;
+}
+.edit {
+    cursor: url('assets/cursors/edit.png'), auto;
+}
+.eraser {
+    cursor: url('assets/cursors/eraser.png'), auto;
+}
+.line {
+    cursor: url('assets/cursors/line.png'), auto;
 }

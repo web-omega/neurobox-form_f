@@ -130,9 +130,12 @@ function RangeField(props) {
                             <div className="max">{props.parameters.max ?? form.values[props.parameters.max_key]}</div>
                         </div>
                     </div>
-                    {errorInput.current !== '' && (
-                        <div className="error">{errorInput.current}</div>
-                    )}
+                    <div className="errorWrap">
+                        {errorInput.current !== '' && (
+                            <div className="error">{errorInput.current}</div>
+                        )}
+                    </div>
+
 
                 </div>
             )}

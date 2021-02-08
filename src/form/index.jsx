@@ -4,13 +4,14 @@ import detectorParameters from "./JSONs/test-detector-parameters.json";
 import detectorDefaultValues from "./JSONs/test-detector-default-values.json";
 import detectorUserValues from "./JSONs/test-detector-user-valuess.json";
 import {renderFormField} from "../functions";
+import user from './../assets/user.svg'
 
 class Form extends Component {
     render() {
         return (
             <div>
                 <div className={'labelForm'}> Настройка детектора</div>
-                <div className={'nameDetector'}><img src="svg/user.svg" alt=""/> Detector_face_verification</div>
+                <div className={'nameDetector'}><img src={user} alt=""/> Detector_face_verification</div>
                 {/*изменить на актуальное название */}
                 <Formik
                     initialValues={Object.assign({}, detectorDefaultValues, detectorUserValues)}
